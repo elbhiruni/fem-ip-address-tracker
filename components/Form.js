@@ -2,11 +2,12 @@ import Image from "next/image";
 import iconArrow from "../public/images/icon-arrow.svg";
 import { useState } from "react";
 
-export default function Form() {
+export default function Form({ setSearchInfo }) {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSearchInfo(value);
   };
 
   const handleChange = (e) => {
