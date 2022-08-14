@@ -1,6 +1,6 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Components
 import Form from "../components/Form";
@@ -17,8 +17,34 @@ export default function Home() {
     region: "NY 10001",
     timezone: "UTC-05:00",
     isp: "SpaceX Starlink",
-    position: [51.505, -0.09],
+    lat: 51.505,
+    lng: -0.09,
   });
+  const [searchInfo, setSearchInfo] = useState(null);
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((res) => res.json())
+      .then((data) => setSearchInfo(data.ip));
+  }, []);
+
+  useEffect(() => {
+    if (searchInfo !== null) {
+      fetch(`/api/geolocation/?ipAddress=${searchInfo}&domain=${searchInfo}`)
+        .then((res) => res.json())
+        .then((data) =>
+          setInfo({
+            ip: data.ip,
+            city: data.location.city,
+            region: data.location.region,
+            timezone: data.location.timezone,
+            isp: data.isp,
+            lat: data.location.lat,
+            lng: data.location.lng,
+          })
+        );
+    }
+  }, [searchInfo]);
 
   return (
     <>
@@ -35,7 +61,7 @@ export default function Home() {
             IP Address Tracker
           </h1>
           <div className="mt-7 md:mt-8">
-            <Form setInfo={setInfo} />
+            <Form setSearchInfo={setSearchInfo} />
           </div>
           <div className="mt-6 md:mt-12">
             <InfoCard
@@ -46,7 +72,7 @@ export default function Home() {
             />
           </div>
         </div>
-        <Map position={info.position} />
+        <Map position={[info.lat, info.lng]} />
       </main>
     </>
   );
