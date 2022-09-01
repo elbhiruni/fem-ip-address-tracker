@@ -1,50 +1,27 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // Components
 import Form from "../components/Form";
 import InfoCard from "../components/InfoCard";
 
-export default function Home() {
+import { getIp, getInfoByIp } from "../lib/geo";
+
+export default function Home({ data }) {
   const Map = dynamic(() => import("../components/Map"), {
     ssr: false,
   });
 
   const [info, setInfo] = useState({
-    ip: "192.212.174.101",
-    city: "Brooklyn",
-    region: "NY 10001",
-    timezone: "UTC-05:00",
-    isp: "SpaceX Starlink",
-    lat: 51.505,
-    lng: -0.09,
+    ip: data.ip,
+    city: data.location.city,
+    region: data.location.region,
+    timezone: data.location.timezone,
+    isp: data.isp,
+    lat: data.location.lat,
+    lng: data.location.lng,
   });
-  const [searchInfo, setSearchInfo] = useState(null);
-
-  useEffect(() => {
-    fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
-      .then((data) => setSearchInfo(data.ip));
-  }, []);
-
-  useEffect(() => {
-    if (searchInfo !== null) {
-      fetch(`/api/geolocation/?ipAddress=${searchInfo}&domain=${searchInfo}`)
-        .then((res) => res.json())
-        .then((data) =>
-          setInfo({
-            ip: data.ip,
-            city: data.location.city,
-            region: data.location.region,
-            timezone: data.location.timezone,
-            isp: data.isp,
-            lat: data.location.lat,
-            lng: data.location.lng,
-          })
-        );
-    }
-  }, [searchInfo]);
 
   return (
     <>
@@ -61,7 +38,7 @@ export default function Home() {
             IP Address Tracker
           </h1>
           <div className="mt-7 md:mt-8">
-            <Form setSearchInfo={setSearchInfo} />
+            <Form setInfo={setInfo} />
           </div>
           <div className="mt-6 md:mt-12">
             <InfoCard
@@ -76,4 +53,16 @@ export default function Home() {
       </main>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  const ip = getIp(req);
+  const data = await getInfoByIp(ip);
+
+  return {
+    props: {
+      data,
+    }, // will be passed to the page component as props
+  };
 }
