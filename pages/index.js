@@ -22,6 +22,18 @@ export default function Home({ data }) {
     lng: data?.location?.lng ?? 106.82700139258762,
   });
 
+  useEffect(() => {
+    if (!data) {
+      toast.error("Internal Server Error", {
+        position: 'top-right'
+      });
+    } else if (data?.messages) {
+      toast.error(data.messages, {
+        position: 'top-right'
+      });
+    }
+  }, [data]);
+
   return (
     <>
       <Head>
@@ -50,6 +62,7 @@ export default function Home({ data }) {
         </div>
         <Map position={[info.lat, info.lng]} />
       </main>
+      <Toaster />
     </>
   );
 }
