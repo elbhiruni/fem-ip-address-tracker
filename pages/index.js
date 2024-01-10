@@ -12,27 +12,39 @@ export default function Home({ data }) {
     ssr: false,
   });
 
-  const [info] = useState({
-    ip: data?.ip ?? "n/a",
-    city: data?.location?.city ?? "n/a",
-    region: data?.location?.region ?? "n/a",
-    timezone: data?.location?.timezone ?? "n/a",
-    isp: data?.isp ?? "n/a",
-    lat: data?.location?.lat ?? -6.175010662604421,
-    lng: data?.location?.lng ?? 106.82700139258762,
+  const [info, setInfo] = useState({
+    ip: "n/a",
+    city: "n/a",
+    region: "n/a",
+    timezone: "n/a",
+    isp: "n/a",
+    lat: -6.175010662604421,
+    lng: 106.82700139258762,
   });
 
   useEffect(() => {
-    if (!data) {
+    if (data) {
+      setInfo({
+        ip: data.ip ?? "n/a",
+        city: data.location?.city ?? "n/a",
+        region: data.location?.region ?? "n/a",
+        timezone: data.location?.timezone ?? "n/a",
+        isp: data.isp ?? "n/a",
+        lat: data.location?.lat ?? -6.175010662604421,
+        lng: data.location?.lng ?? 106.82700139258762,
+      })
+
+      if (data.messages) {
+        toast.error(data.messages, {
+          position: 'top-right'
+        });
+      }
+    } else {
       toast.error("Internal Server Error", {
         position: 'top-right'
       });
-    } else if (data?.messages) {
-      toast.error(data.messages, {
-        position: 'top-right'
-      });
     }
-  }, [data]);
+  }, [data])
 
   return (
     <>
