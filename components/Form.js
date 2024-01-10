@@ -1,13 +1,17 @@
 import Image from "next/image";
 import iconArrow from "../public/images/icon-arrow.svg";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
-export default function Form({ setInfo }) {
+export default function Form() {
+  const router = useRouter()
   const [value, setValue] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchInfo(value);
+    if (value) {
+      router.replace(`/?value=${value}`)
+    }
   };
 
   const handleChange = (e) => {
@@ -18,25 +22,6 @@ export default function Form({ setInfo }) {
   const handleBlur = () => {
     setValue(value.replace(/\s/g, ""));
   };
-
-  const [searchInfo, setSearchInfo] = useState(null);
-  useEffect(() => {
-    if (searchInfo !== null) {
-      fetch(`/api/geolocation/?ipAddress=${searchInfo}&domain=${searchInfo}`)
-        .then((res) => res.json())
-        .then((data) =>
-          setInfo({
-            ip: data.ip,
-            city: data.location.city,
-            region: data.location.region,
-            timezone: data.location.timezone,
-            isp: data.isp,
-            lat: data.location.lat,
-            lng: data.location.lng,
-          })
-        );
-    }
-  }, [searchInfo, setInfo]);
 
   return (
     <form className="flex" onSubmit={handleSubmit}>
